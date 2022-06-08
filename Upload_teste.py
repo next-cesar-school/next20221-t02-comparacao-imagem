@@ -16,9 +16,9 @@ def upload():
     file = request.files["imagem"]
     print(UPLOAD_FOLDER)
     print(secure_filename(file.filename))
-    #
+    #Criando uma variável que irá armazenar o caminho aonde o arquivo deverá ser armazenado. O Método secure_filename serve para eliminar carcteres especiais do titulo do arquivo
     savePath = os.path.join(UPLOAD_FOLDER, secure_filename(file.filename))
-    #
+    #Salvando a variável no caminho definido na linha de cima
     file.save(savePath)
     return "Upload feito com sucesso"
 
