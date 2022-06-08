@@ -13,7 +13,7 @@ UPLOAD_FOLDER = os.path.join(os.getcwd(),'upload')
 @app2.route('/upload', methods=["POST"])
 def upload():
     #Recebe um arquivo image do usuário e armazena na variável file
-    file = request.files["imagem"]
+    file = request.files["image"]
     print(UPLOAD_FOLDER)
     print(secure_filename(file.filename))
     #Criando uma variável que irá armazenar o caminho aonde o arquivo deverá ser armazenado. O Método secure_filename serve para eliminar carcteres especiais do titulo do arquivo
