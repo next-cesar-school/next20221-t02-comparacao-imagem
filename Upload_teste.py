@@ -57,7 +57,9 @@ def list():
         id_arq.append(i+1)
         dir_list_final.append(f"{id_arq[i]} - {dir_list[i]}")
     #converter para json e gerar lista de imagens e seus ids
-    return Response(json.dumps(dir_list_final),  mimetype='application/json') 
+    return Response(json.dumps(dir_list_final),  mimetype='application/json')
+
+    #melhorar para dicionário. 
 
 
 
@@ -71,6 +73,8 @@ def remove():
     removepath = os.path.join(UPLOAD_FOLDER, file)
     os.remove(removepath)
     return "Arquivo deletado com sucesso"
+
+    #melhorar para dicionário. 
 
 
 @app2.route('/comparationlist', methods=["POST"])
@@ -105,19 +109,20 @@ def comparationlist():
 def temp_upload():
     file1 = request.files["image1"]
     file2 = request.files["image2"]
-    savePath1 = os.path.join(TEMP_FOLDER,secure_filename(file1.filename))
-    savePath2 = os.path.join(TEMP_FOLDER,secure_filename(file2.filename))
+    savePath1 = os.path.join(TEMP_FOLDER,secure_filename(file1.filename)+'1')
+    savePath2 = os.path.join(TEMP_FOLDER,secure_filename(file2.filename)+'2')
     file1.save(savePath1)
     file2.save(savePath2)
     image1 = Image.open(savePath1)
-    image2 = Image.open(savePath2)    
-    if compare.compare_two_images(image1,image2) > 0:
-        diference_percentual = f"A distancia de Hamming entre as duas imagens é: {compare.compare_two_images(image1,image2)}.\n Portanto as imagens são diferentes."     
-        return  diference_percentual
-    else:
+    image2 = Image.open(savePath2)
+    diference_percentual = compare.compare_two_images(image1,image2)  
+    os.remove(savePath1)
+    os.remove(savePath2)
+    if diference_percentual > 0:
+       return f"A distancia de Hamming entre as duas imagens é: {diference_percentual}.\n Portanto as imagens são diferentes."     
+    else:        
         return "As imagens são iguais. "
-# falta excluir as 2 fotos
-   
+
         
 
 if __name__ == "__main__":
