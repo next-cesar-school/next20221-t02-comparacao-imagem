@@ -17,12 +17,16 @@ from PIL import Image
 
 
 
+
 #Inicializando o API
 app2 = Flask(__name__)
 
 
+
+
 #Definindo uma variável para armazenar o caminho da pasta onde serão armazenados os arquivos upados pelo usuário, bem como a pasta TEMP
 UPLOAD_FOLDER = os.path.join(os.getcwd(),'upload')
+#Definindo uma variável para armazenar o caminho da pasta TEMP, pasta temporária para armazenação de imagens
 TEMP_FOLDER = os.path.join(os.getcwd(),'temp')
 
 
@@ -77,7 +81,7 @@ def remove():
     print(file)
     #Definindo o caminho do arquivo a ser excluido
     removepath = os.path.join(UPLOAD_FOLDER, file)
-    #excluindo o arquivo
+    #Excluindo o arquivo
     os.remove(removepath)
     return "Arquivo deletado com sucesso"
 
@@ -115,6 +119,7 @@ def comparationlist():
     #A imagem mais próxima será a de menor valor da distancia de hamming
     close_image = dir_list[dif_hamming.index(min(dif_hamming))]  
     return f'{dir_list_final[close_image]} - {close_image}'
+
  
 
 
