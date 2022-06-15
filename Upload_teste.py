@@ -17,10 +17,8 @@ from PIL import Image
 
 
 
-
 #Inicializando o API
 app2 = Flask(__name__)
-
 
 
 
@@ -122,20 +120,26 @@ def comparationlist():
 
  
 
-
 @app2.route('/instantcomparator', methods=["POST", "GET"])
 def temp_upload():
+    #Recebendo as duas imagens a serem comparadas
     file1 = request.files["image1"]
     file2 = request.files["image2"]
+    #DEfinindo duas variáveis que armazenarão o caminho onde serão salvas as imagens
     savePath1 = os.path.join(TEMP_FOLDER,secure_filename(file1.filename)+'1')
     savePath2 = os.path.join(TEMP_FOLDER,secure_filename(file2.filename)+'2')
+    #Salvando as imagens temporariamente na pasta TEMP
     file1.save(savePath1)
     file2.save(savePath2)
+    #Abrindo as duas imagens a serem comparadas
     image1 = Image.open(savePath1)
     image2 = Image.open(savePath2)
+    #Comparando as imagens
     diference_percentual = compare.compare_two_images(image1,image2)  
+    #Excluindo as imagens
     os.remove(savePath1)
     os.remove(savePath2)
+    #Avaliando o resultado da comparação das imagens
     if diference_percentual > 0:
        return f"A distancia de Hamming entre as duas imagens é: {diference_percentual}.\n Portanto as imagens são diferentes."     
     else:        
@@ -145,4 +149,3 @@ def temp_upload():
 
 if __name__ == "__main__":
     app2.run(debug=True)
-    #app2.run(debug=True)
