@@ -26,6 +26,15 @@ app2 = Flask(__name__)
 UPLOAD_FOLDER = os.path.join(os.getcwd(),'upload')
 #Definindo uma variável para armazenar o caminho da pasta TEMP, pasta temporária para armazenação de imagens
 TEMP_FOLDER = os.path.join(os.getcwd(),'temp')
+#Definindo as extensões de imagem aceitas
+ALLOWED_EXTENSIONS = set(['jpg'])
+
+
+
+#Método para verificar a se a extensão do arquivo é suportada
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 
@@ -34,13 +43,17 @@ TEMP_FOLDER = os.path.join(os.getcwd(),'temp')
 def upload():
     #Recebe um arquivo image do usuário e armazena na variável file
     file = request.files["image"]
-    print(UPLOAD_FOLDER)
-    print(secure_filename(file.filename))
-    #Criando uma variável que irá armazenar o caminho aonde o arquivo deverá ser armazenado. O Método secure_filename serve para eliminar carcteres especiais do titulo do arquivo
-    savePath = os.path.join(UPLOAD_FOLDER, secure_filename(file.filename))
-    #Salvando a variável no caminho definido na linha de cima
-    file.save(savePath)
-    return "Upload feito com sucesso"
+    #Verificando se a extensão do arquivo é suportada
+    if file and allowed_file(file.filename):
+        print(UPLOAD_FOLDER)
+        print(secure_filename(file.filename))
+        #Criando uma variável que irá armazenar o caminho aonde o arquivo deverá ser armazenado. O Método secure_filename serve para eliminar carcteres especiais do titulo do arquivo
+        savePath = os.path.join(UPLOAD_FOLDER, secure_filename(file.filename))
+        #Salvando a variável no caminho definido na linha de cima
+        file.save(savePath)
+        return "Upload feito com sucesso"
+    else:
+        return "Arquivo não suportado. Apenas a extensão .jpg é aceita"
 
 
 
@@ -89,34 +102,38 @@ def remove():
 def comparationlist():
     #Recebe um arquivo image do usuário e armazena na variável file
     file = request.files["image"]
-    #Criando uma variável que irá armazenar o caminho aonde o arquivo deverá ser armazenado. O Método secure_filename serve para eliminar carcteres especiais do titulo do arquivo
-    savePath = os.path.join(TEMP_FOLDER, secure_filename(file.filename))
-    #Salvando a variável no caminho definido na linha de cima
-    file.save(savePath)
-    #Abrindo a imagem que será comparada com todas as imagens da pasta UPLOAD
-    fiximage = Image.open(savePath)
-    #Gerando uma lista com todas as imagens da pasta UPLOAD
-    path = UPLOAD_FOLDER
-    dir_list = os.listdir(path) 
-    #Criando um dicionário para armazenar a lista dos arquivos, associando um id ao nome do arquivo
-    dir_list_final = dict() 
-    #Inserindo os valores nas listas criadas acima
-    for i in range(len(dir_list)):
-        id_arq= (i+1)
-        name_arq = dir_list[i]
-        dir_list_final[name_arq]= id_arq
-    #Inicializando uma lista que armazenará os valores da distancia de hamming para cada uma das comparaçoes feitas
-    dif_hamming = []
-    #Comparando a imagem base com as demais imagens da pasta UPLOAD e preenchendo a lista com o resultado das comparações
-    for i in range(len(dir_list)):
-        dif_hamming.append(compare.compare_two_images(fiximage,Image.open(os.path.join(UPLOAD_FOLDER, dir_list[i]))))
-    #Obtendo o menor valor da distancia de hamming    
-    print(f'Menor distancia: {min(dif_hamming)}')
-    #Obtendo o index da menor distancia de hamming na lista anterior
-    print(f'Index: {dif_hamming.index(min(dif_hamming))}')
-    #A imagem mais próxima será a de menor valor da distancia de hamming
-    close_image = dir_list[dif_hamming.index(min(dif_hamming))]  
-    return f'{dir_list_final[close_image]} - {close_image}'
+    #Verificando se a extensão do arquivo é suportada
+    if file and allowed_file(file.filename):
+        #Criando uma variável que irá armazenar o caminho aonde o arquivo deverá ser armazenado. O Método secure_filename serve para eliminar carcteres especiais do titulo do arquivo
+        savePath = os.path.join(TEMP_FOLDER, secure_filename(file.filename))
+        #Salvando a variável no caminho definido na linha de cima
+        file.save(savePath)
+        #Abrindo a imagem que será comparada com todas as imagens da pasta UPLOAD
+        fiximage = Image.open(savePath)
+        #Gerando uma lista com todas as imagens da pasta UPLOAD
+        path = UPLOAD_FOLDER
+        dir_list = os.listdir(path) 
+        #Criando um dicionário para armazenar a lista dos arquivos, associando um id ao nome do arquivo
+        dir_list_final = dict() 
+        #Inserindo os valores nas listas criadas acima
+        for i in range(len(dir_list)):
+            id_arq= (i+1)
+            name_arq = dir_list[i]
+            dir_list_final[name_arq]= id_arq
+        #Inicializando uma lista que armazenará os valores da distancia de hamming para cada uma das comparaçoes feitas
+        dif_hamming = []
+        #Comparando a imagem base com as demais imagens da pasta UPLOAD e preenchendo a lista com o resultado das comparações
+        for i in range(len(dir_list)):
+            dif_hamming.append(compare.compare_two_images(fiximage,Image.open(os.path.join(UPLOAD_FOLDER, dir_list[i]))))
+        #Obtendo o menor valor da distancia de hamming    
+        print(f'Menor distancia: {min(dif_hamming)}')
+        #Obtendo o index da menor distancia de hamming na lista anterior
+        print(f'Index: {dif_hamming.index(min(dif_hamming))}')
+        #A imagem mais próxima será a de menor valor da distancia de hamming
+        close_image = dir_list[dif_hamming.index(min(dif_hamming))]  
+        return f'{dir_list_final[close_image]} - {close_image}'
+    else:
+        return "Arquivo não suportado. Apenas a extensão .jpg é aceita"
 
  
 
@@ -125,25 +142,30 @@ def temp_upload():
     #Recebendo as duas imagens a serem comparadas
     file1 = request.files["image1"]
     file2 = request.files["image2"]
-    #DEfinindo duas variáveis que armazenarão o caminho onde serão salvas as imagens
-    savePath1 = os.path.join(TEMP_FOLDER,secure_filename(file1.filename)+'1')
-    savePath2 = os.path.join(TEMP_FOLDER,secure_filename(file2.filename)+'2')
-    #Salvando as imagens temporariamente na pasta TEMP
-    file1.save(savePath1)
-    file2.save(savePath2)
-    #Abrindo as duas imagens a serem comparadas
-    image1 = Image.open(savePath1)
-    image2 = Image.open(savePath2)
-    #Comparando as imagens
-    diference_percentual = compare.compare_two_images(image1,image2)  
-    #Excluindo as imagens
-    os.remove(savePath1)
-    os.remove(savePath2)
-    #Avaliando o resultado da comparação das imagens
-    if diference_percentual > 0:
-       return f"A distancia de Hamming entre as duas imagens é: {diference_percentual}.\n Portanto as imagens são diferentes."     
-    else:        
-        return "As imagens são iguais. "
+    
+    #Verificando se a extensão do arquivo é suportada
+    if file1 and allowed_file(file1.filename) and file2 and allowed_file(file2.filename):
+        #Definindo duas variáveis que armazenarão o caminho onde serão salvas as imagens
+        savePath1 = os.path.join(TEMP_FOLDER,secure_filename(file1.filename)+'1')
+        savePath2 = os.path.join(TEMP_FOLDER,secure_filename(file2.filename)+'2')
+        #Salvando as imagens temporariamente na pasta TEMP
+        file1.save(savePath1)
+        file2.save(savePath2)
+        #Abrindo as duas imagens a serem comparadas
+        image1 = Image.open(savePath1)
+        image2 = Image.open(savePath2)
+        #Comparando as imagens
+        diference_percentual = compare.compare_two_images(image1,image2)  
+        #Excluindo as imagens
+        os.remove(savePath1)
+        os.remove(savePath2)
+        #Avaliando o resultado da comparação das imagens
+        if diference_percentual > 0:
+            return f"A distancia de Hamming entre as duas imagens é: {diference_percentual}.\n Portanto as imagens são diferentes."     
+        else:        
+            return "As imagens são iguais. "
+    else:
+        return "Arquivo não suportado. Apenas a extensão .jpg é aceita"
 
         
 
