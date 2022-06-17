@@ -1,11 +1,9 @@
-import os, json, copy
-from tkinter import Image
-from unittest.mock import patch
+import os, json
 from flask import Flask, request, Response
 from werkzeug.utils import secure_filename
 from modulo import compare, validacoes
 from PIL import Image
-from io import BytesIO
+
 
 
 
@@ -37,7 +35,7 @@ def upload():
         return "Upload feito com sucesso"
     else:
         os.remove(savePath)
-        return "Arquivo corrompido."
+        return "Upload não realizado. Rever arquivo utilizado."
 
 
 
@@ -78,7 +76,7 @@ def remove():
     removepath = os.path.join(UPLOAD_FOLDER, file)
     #Excluindo o arquivo
     os.remove(removepath)
-    return "Arquivo deletado com sucesso"
+    return "Arquivo deletado com sucesso."
 
 
 
@@ -120,7 +118,7 @@ def comparationlist():
         return f'{dir_list_final[close_image]} - {close_image}'      
     else:
         os.remove(savePath)
-        return "Arquivo corrompido."       
+        return "Rever arquivo utilizado."       
         
 
  
@@ -147,14 +145,12 @@ def temp_upload():
         os.remove(savePath1)
         os.remove(savePath2)
         #Avaliando o resultado da comparação das imagens
-        if diference_percentual > 0:
-            return f"A distancia de Hamming entre as duas imagens é: {diference_percentual}.\n Portanto as imagens são diferentes."     
-        else:        
-            return "As imagens são iguais. "
+        return f"{diference_percentual}."     
+        
     else:
         os.remove(savePath1)
         os.remove(savePath2)
-        return "Arquivo corrompido."
+        return "Rever arquivo utilizado."
 
         
 
